@@ -15,7 +15,7 @@ def lattice_points(R,position):
     points = []
     patch_center = np.floor(position).astype(int)
     for i in range(patch_center[0]-R,patch_center[0]+R):
-        for j in range(patch_center[1]-R,patch_center[1]+R)
+        for j in range(patch_center[1]-R,patch_center[1]+R):
             points.append(np.array([i,j]))
     return points
 
