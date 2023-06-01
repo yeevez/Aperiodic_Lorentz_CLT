@@ -146,7 +146,7 @@ def simulate_diffusion(radius,max_bounces,R,p=2):
         if np.linalg.norm(position-old_position) > largest_flight_time:
             largest_flight_time = np.linalg.norm(position-old_position)
         if n_bounces%1000 == 0:
-            results[n_bounces/1000] = position
+            results[int(n_bounces/1000)] = position
         #print("num bounces: ", n_bounces)
     return (results,largest_flight_time)
 
@@ -200,7 +200,7 @@ def find_collision_point(position, velocity,points,radius,p):
     obj_centers,projections = posHitInArea(points,position,velocity,radius,p)
     centers_new = []
     possible_collisions = []
-    radius_squared = radius**2
+    #radius_squared = radius**2
     for i in range(len(obj_centers)):
         center = obj_centers[i]
         projection = projections[i]
