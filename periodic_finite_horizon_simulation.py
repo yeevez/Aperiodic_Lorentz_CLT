@@ -19,7 +19,7 @@ def lattice_points(R,position):
     if int(np.round(position[1]/(np.sqrt(3)/2)))%2 == 1:
         center_x += 0.5
 
-    patch_center = np.array(center_x,center_y)
+    patch_center = np.array([center_x,center_y])
 
     for i in range(-R,R):
         for j in range(-R,R):
