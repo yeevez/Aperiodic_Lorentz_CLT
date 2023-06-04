@@ -16,14 +16,15 @@ def lattice_points(R,position):
     points = []
     center_x = np.round(position[0])
     center_y = np.round(position[1]/(np.sqrt(3)/2))*np.sqrt(3)/2
-    if int(np.round(position[1]/(np.sqrt(3)/2)))%2 == 1:
-        center_x += 0.5
 
     patch_center = np.array([center_x,center_y])
 
     for i in range(-R,R):
         for j in range(-R,R):
-            points.append(np.array([patch_center[0]+ i,patch_center[1] + (np.sqrt(3)/2)*j]))
+            if j%2 == 0:
+                points.append(np.array([patch_center[0] + i,patch_center[1] + (np.sqrt(3)/2)*j]))
+            else:
+                points.append(np.array([patch_center[0] + i + 0.5,patch_center[1] + (np.sqrt(3)/2)*j]))
     return points
 
 #Return closest point with respect to x to thing in xPosition
