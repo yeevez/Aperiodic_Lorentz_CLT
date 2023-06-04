@@ -1,11 +1,6 @@
 """
-This template .py file contains all the helper functions necessary to run the simulation, and can be run
-as is to generate collisions under the same parameters that we have been doing so far, but is designed to 
-be copied and some parameters changed. For example, you could change the matrix that generates the aperiodic
-points, the radius of the points, the shape of the scatterers, the number of collisions, the number of
-collisions whose positions we actually save in each sample, or more broadly generalize or modify the simulation
- in other ways. Make sure to adjust the names of the samples being saved to reflect the specific parameters
-of this simulation run
+This simulation will use the integer lattice as a scattering configuration in order to simulate
+the periodic Lorentz gas with infinite horizon.
 """
 
 import numpy as np
@@ -235,7 +230,8 @@ N_SAMPLES = 10000
 n_existing_samples = 0
 radius = 0.3
 max_bounces = 5000000
-R = 3
+#number of points per patch is (2R)^2 for periodic point generation
+R = 6
 
 
 for i in range(n_existing_samples+1,N_SAMPLES):
