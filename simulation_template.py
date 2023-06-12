@@ -133,6 +133,7 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
     goingForward =  velocity[0] > 0
     
     it = 0
+    temp = listOfVectors[cp]
     while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
         temp = listOfVectors[cp + it]
         newPosCenterSphere = temp - position
@@ -144,6 +145,7 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
         it += 1
 
     it = 0
+    temp = listOfVectors[cp]
     goingBackwards = velocity[0] < 0
     while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
         temp = listOfVectors[cp + it]
