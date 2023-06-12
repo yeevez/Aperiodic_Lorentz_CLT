@@ -30,12 +30,12 @@ def hyperbolic_matrix(dim,rand = False):
     return A
 
 def irrational_plane(A, dim):
-    #returns a dim-1 dimensional eigenspace of a dim dimensional hyperbolic matrix
+    #returns a dim-1 dimensional eigen subspace of a dim dimensional hyperbolic matrix
     subspace_dim = dim - 1
     eigenvals,eigenvecs = np.linalg.eig(A)
     eigenvectors = []
     for i in range(dim):
-        eigenvectors.append(eigenvecs[:,i])
+        eigenvectors.append(eigenvecs[i]/np.linalg.norm(eigenvecs[i],ord=2))
     return eigenvectors[:subspace_dim]
 
 ##code to project aperiodic points onto a plane
@@ -130,7 +130,31 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
         k = 2
     else:
         k = 1
+    goingForward =  velocity[0] > 0
+    
+    it = 0
+    while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
+        temp = listOfVectors[cp + it]
+        newPosCenterSphere = temp - position
+        projectionOfCenter = proj_matrix @ newPosCenterSphere
+        centerToProjection = projectionOfCenter - newPosCenterSphere
+        if (np.linalg.norm(centerToProjection) <= radius):
+            collisionList.append(temp)
+            projectionList.append(projectionOfCenter + position)
+        it += 1
 
+    it = 0
+    goingBackwards = velocity[0] < 0
+    while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
+        temp = listOfVectors[cp + it]
+        newPosCenterSphere = temp - position
+        projectionOfCenter = proj_matrix @ newPosCenterSphere
+        centerToProjection = projectionOfCenter - newPosCenterSphere
+        if (np.linalg.norm(centerToProjection) <= radius):
+            collisionList.append(temp)
+            projectionList.append(projectionOfCenter + position)
+        it -= 1
+    """    
     if (velocity[0] == 0):
         itB = 0
         itA = 0
@@ -181,6 +205,7 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
             if iter_direction*(currentVector[0]-projectionList[k][0])>radiusDoubled:
                 return collisionList,projectionList
         it += iter_direction
+    """
     return collisionList,projectionList
 
 ##code to simulate the path of a particle through an aperiodic medium
