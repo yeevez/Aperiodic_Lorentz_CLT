@@ -1,9 +1,7 @@
-function paths=scatter_p(bounces,trials,step)
+function paths = scatter_alt(bounces,trials,step)
   m=[1,1,1;1,2,2;1,2,3];
-  %non-pisot
-  %m=[3,3,5;1,4,3;2,1,3];
-  window=0.5;
-  grid=20;
+  [eigenvecs, ~] = eig(m);
+  eigz = transpose([-eigenvecs(:,3),-eigenvecs(:,2)]);
   ratio=0.99;
   [v,l]=eig(m);
   n=cross(v(:,2),v(:,3));
@@ -13,13 +11,15 @@ function paths=scatter_p(bounces,trials,step)
   t=acos(dot(n,[0;0;1]));
   r=[cos(t)+u(1)^2*(1-cos(t)),u(1)*u(2)*(1-cos(t))-u(3)*sin(t),u(1)*u(3)*(1-cos(t))+u(2)*sin(t);u(2)*u(1)*(1-cos(t))+u(3)*sin(t),cos(t)+u(2)^2*(1-cos(t)),u(2)*u(3)*(1-cos(t))-u(1)*sin(t);u(3)*u(1)*(1-cos(t))-u(2)*sin(t),u(3)*u(2)*(1-cos(t))+u(1)*sin(t),cos(t)+u(3)^2*(1-cos(t))];
   rinv=inv(r);
-  [sp,~,~]=scatterer_positions(r,window,200,[0;0;0]);
+  sp=aperiodic_points(4,3,eigz,2,[0,0]);
   radius=ratio*min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(2,bounces/step+1,trials);
   parfor i=1:trials
-    c=[0;0;0];
-    [sp,~,~]=scatterer_positions(r,window,grid,c);
+     m=[1,1,1;1,2,2;1,2,3];
+    [eigenvecs, ~] = eig(m);
+    eigz = transpose([-eigenvecs(:,3),-eigenvecs(:,2)]);
+    sp=aperiodic_points(4,3,eigz,2,[0;0]);
     angle=mod(2*pi*rand(),2*pi);
     position=radius*[cos(angle);sin(angle)];
     path=zeros(2,bounces+1);
@@ -52,7 +52,7 @@ function paths=scatter_p(bounces,trials,step)
         xi=find(x>sh(1,:)&x<sh(2,:));
         c=round(rinv*[[cos(angle),-sin(angle);sin(angle),cos(angle)]*[max(x(xi))-radius;rp(2)];0]);
         %fprintf('Regenerating grid at (%i,%i,%i).\n',c(1),c(2),c(3));
-        [sp,~,~]=scatterer_positions(r,window,grid,c);
+        sp=aperiodic_points(4,3,eigz,2,position);
       end
     end
     e=toc;

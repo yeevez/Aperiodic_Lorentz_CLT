@@ -30,7 +30,7 @@ def hyperbolic_matrix(dim,rand = False):
     return A
 
 def irrational_plane(A, dim):
-    #returns a dim-1 dimensional eigenspace of a dim dimensional hyperbolic matrix
+    #returns a dim-1 dimensional eigen subspace of a dim dimensional hyperbolic matrix
     subspace_dim = dim - 1
     eigenvals,eigenvecs = np.linalg.eig(A)
     eigenvectors = []
@@ -47,21 +47,6 @@ def point_projection(vectors,point):
         projection[i] = point.dot(vectors[i]) #coefficient
     return projection
 
-def reducedDimensionMatrix(eig, dim):
-    reddim = dim - 1
-    r = np.eye(reddim)
-    for i in range(reddim):
-        for j in range(reddim):
-            r[j,i] = eig[i][j]
-    return r
-def solveForZ(eig, matrix, x,dim):
-    reddim = dim - 1
-    rVector = np.linalg.solve(matrix,x)
-    z=0
-    for i in range(reddim):
-        eig[i][reddim]
-        z += rVector[i]*eig[i][reddim]
-    return z
 
 def aperiodic_points(R,dim,eig,borderSize,position):
     #x1<x2, y1<y1
@@ -69,7 +54,7 @@ def aperiodic_points(R,dim,eig,borderSize,position):
     points = []
     patch_center = sum([position[i]*eig[i] for i in range(dim-1)]) #3d representation of position on plane
     patch_center = np.floor(patch_center).astype(int)
-    rdm = reducedDimensionMatrix(eig, dim)
+
     r = np.eye(dim)
     x = patch_center[0]
     y = patch_center[1]
@@ -77,7 +62,7 @@ def aperiodic_points(R,dim,eig,borderSize,position):
     for i in range(x-R,x+R):
         for j in range(y-R,y+R):
             x_=np.array([i,j])
-            z = solveForZ(eig, rdm, x_,dim)
+            z = (i*eig[0] + j*eig[1])[2]
             borderFloor = np.floor((z-borderSize))
             borderRoof = np.floor((z+borderSize+1))
             for point in range( borderFloor.astype(int), borderRoof.astype(int)):
@@ -125,33 +110,57 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
         k = 2
     else:
         k = 1
-    goingForward =  velocity[0] > 0
-    
-    it = 0
-    temp = listOfVectors[cp]
-    while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
-        temp = listOfVectors[cp + it]
-        newPosCenterSphere = temp - position
-        projectionOfCenter = proj_matrix @ newPosCenterSphere
-        centerToProjection = projectionOfCenter - newPosCenterSphere
-        if (np.linalg.norm(centerToProjection) <= radius):
-            collisionList.append(temp)
-            projectionList.append(projectionOfCenter + position)
-        it += 1
 
-    it = 0
-    temp = listOfVectors[cp]
-    goingBackwards = velocity[0] < 0
-    while ( (cp + it) >= 0 and (True if goingForward else ( temp[0] - position[0]  < radius))):
-        temp = listOfVectors[cp + it]
-        newPosCenterSphere = temp - position
+    if (velocity[0] == 0):
+        itB = 0
+        itA = 0
+        before = listOfVectors[cp+itB]
+        after = listOfVectors[cp+itA]
+        while(before[0]-position[0]>-radius):
+            if (cp+itB==length):
+                break
+            before = listOfVectors[cp+itB]
+            currentVector = before
+            newPosCenterSphere =  currentVector - position
+            #We check that the sphere is close enough to collide and if so append
+            projectionOfCenter = proj_matrix @ newPosCenterSphere
+            centerToProjection = projectionOfCenter - newPosCenterSphere
+            CTPLengthSQ = centerToProjection.dot(centerToProjection)
+            if (CTPLengthSQ <= radiusSquared):
+                collisionList.append( currentVector)
+                projectionList.append(projectionOfCenter+position)
+            itB+=1
+        while(after[0]-position[0]<radius):
+            if (cp+itA<0):
+                break
+            after = listOfVectors[cp+itA]
+            currentVector = after
+            newPosCenterSphere =  currentVector - position
+            #We check that the sphere is close enough to collide and if so append
+            projectionOfCenter = proj_matrix @ newPosCenterSphere
+            centerToProjection = projectionOfCenter - newPosCenterSphere
+            CTPLengthSQ = centerToProjection.dot(centerToProjection)
+            if (CTPLengthSQ <= radiusSquared):
+                collisionList.append( currentVector)
+                projectionList.append(projectionOfCenter+position)
+            itA-=1
+            after = listOfVectors[cp+itA]
+        return collisionList,projectionList
+    while (cp+it<length and cp+it>=0):
+        currentVector = listOfVectors[cp+it]
+        #We move the plane so the electrton is in the center and this moves the circles to their according position
+        newPosCenterSphere =  currentVector - position
+        #We check that the sphere is close enough to collide and if so append
         projectionOfCenter = proj_matrix @ newPosCenterSphere
         centerToProjection = projectionOfCenter - newPosCenterSphere
-        if (np.linalg.norm(centerToProjection) <= radius):
-            collisionList.append(temp)
-            projectionList.append(projectionOfCenter + position)
-        it -= 1
-  
+        norm = np.linalg.norm(centerToProjection,ord=p)
+        if (norm < radius):
+            collisionList.append( currentVector)
+            projectionList.append(projectionOfCenter+position)
+        if (len(projectionList)>k):
+            if iter_direction*(currentVector[0]-projectionList[k][0])>radiusDoubled:
+                return collisionList,projectionList
+        it += iter_direction
     return collisionList,projectionList
 
 ##code to simulate the path of a particle through an aperiodic medium
@@ -192,7 +201,7 @@ def simulate_diffusion(radius,max_bounces,R,bordersize,p=2):
         if np.linalg.norm(position-old_position) > largest_flight_time:
             largest_flight_time = np.linalg.norm(position-old_position)
         if n_bounces%1000 == 0:
-            results[int(round(n_bounces/1000))] = position
+            results[n_bounces/1000] = position
         #print("num bounces: ", n_bounces)
     return (results,largest_flight_time)
 
