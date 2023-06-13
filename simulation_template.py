@@ -62,11 +62,6 @@ def solveForZ(eig, matrix, x,dim):
         eig[i][reddim]
         z += rVector[i]*eig[i][reddim]
     return z
-def reducedRankMatrix(eig, dim):
-    for i in range(dim-1):
-        for j in range(dim):
-            r[j,i] = eig[i][j]
-    return r
 
 def aperiodic_points(R,dim,eig,borderSize,position):
     #x1<x2, y1<y1
