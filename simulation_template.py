@@ -197,7 +197,7 @@ def simulate_diffusion(radius,max_bounces,R,bordersize,p=2):
         if np.linalg.norm(position-old_position) > largest_flight_time:
             largest_flight_time = np.linalg.norm(position-old_position)
         if n_bounces%1000 == 0:
-            results[n_bounces/1000] = position
+            results[int(round(n_bounces/1000))] = position
         #print("num bounces: ", n_bounces)
     return (results,largest_flight_time)
 
