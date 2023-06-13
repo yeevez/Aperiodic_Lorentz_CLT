@@ -30,12 +30,12 @@ def hyperbolic_matrix(dim,rand = False):
     return A
 
 def irrational_plane(A, dim):
-    #returns a dim-1 dimensional eigen subspace of a dim dimensional hyperbolic matrix
+    #returns a dim-1 dimensional eigenspace of a dim dimensional hyperbolic matrix
     subspace_dim = dim - 1
     eigenvals,eigenvecs = np.linalg.eig(A)
     eigenvectors = []
     for i in range(dim):
-        eigenvectors.append(eigenvecs[i]/np.linalg.norm(eigenvecs[i],ord=2))
+        eigenvectors.append(eigenvecs[:,i])
     return eigenvectors[:subspace_dim]
 
 ##code to project aperiodic points onto a plane
