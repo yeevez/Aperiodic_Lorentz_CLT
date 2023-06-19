@@ -61,8 +61,10 @@ def aperiodic_points(R,dim,eig,borderSize,position):
     
     for i in range(x-R,x+R):
         for j in range(y-R,y+R):
-            x_=np.array([i,j])
-            z = (i*eig[0] + j*eig[1])[2]
+            b = (j*eig[0][0] - i*eig[0][1])/(eig[0][0]*eig[1][1]-eig[1][0]*eig[0][1])
+            a = (i-b*eig[1][0])/eig[0][0]
+            z = a*eig[0][2] + b*eig[1][2]
+            #z = (i*eig[0] + j*eig[1])[2]
             borderFloor = np.floor((z-borderSize))
             borderRoof = np.floor((z+borderSize+1))
             for point in range( borderFloor.astype(int), borderRoof.astype(int)):
