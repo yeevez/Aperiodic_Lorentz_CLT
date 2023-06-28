@@ -67,56 +67,32 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
     else:
         k = 1
 
-    if (velocity[0] == 0):
-        itB = 0
-        itA = 0
-        before = listOfVectors[cp+itB]
-        after = listOfVectors[cp+itA]
-        while(before[0]-position[0]>-radius):
-            if (cp+itB==length):
-                break
-            before = listOfVectors[cp+itB]
-            currentVector = before
-            newPosCenterSphere =  currentVector - position
-            #We check that the sphere is close enough to collide and if so append
-            projectionOfCenter = proj_matrix @ newPosCenterSphere
-            centerToProjection = projectionOfCenter - newPosCenterSphere
-            CTPLengthSQ = centerToProjection.dot(centerToProjection)
-            if (CTPLengthSQ <= radiusSquared):
-                collisionList.append( currentVector)
-                projectionList.append(projectionOfCenter+position)
-            itB+=1
-        while(after[0]-position[0]<radius):
-            if (cp+itA<0):
-                break
-            after = listOfVectors[cp+itA]
-            currentVector = after
-            newPosCenterSphere =  currentVector - position
-            #We check that the sphere is close enough to collide and if so append
-            projectionOfCenter = proj_matrix @ newPosCenterSphere
-            centerToProjection = projectionOfCenter - newPosCenterSphere
-            CTPLengthSQ = centerToProjection.dot(centerToProjection)
-            if (CTPLengthSQ <= radiusSquared):
-                collisionList.append( currentVector)
-                projectionList.append(projectionOfCenter+position)
-            itA-=1
-            after = listOfVectors[cp+itA]
-        return collisionList,projectionList
-    while (cp+it<length and cp+it>=0):
-        currentVector = listOfVectors[cp+it]
-        #We move the plane so the electrton is in the center and this moves the circles to their according position
-        newPosCenterSphere =  currentVector - position
-        #We check that the sphere is close enough to collide and if so append
+     goingForward =  velocity[0] > 0
+
+    it = 0
+    temp = listOfVectors[cp]
+    while ( (cp + it) < length and (True if goingForward else (position[0] - temp[0] < radius))):
+        temp = listOfVectors[cp + it]
+        newPosCenterSphere = temp - position
         projectionOfCenter = proj_matrix @ newPosCenterSphere
         centerToProjection = projectionOfCenter - newPosCenterSphere
-        norm = np.linalg.norm(centerToProjection,ord=p)
-        if (norm < radius):
-            collisionList.append( currentVector)
-            projectionList.append(projectionOfCenter+position)
-        if (len(projectionList)>k):
-            if iter_direction*(currentVector[0]-projectionList[k][0])>radiusDoubled:
-                return collisionList,projectionList
-        it += iter_direction
+        if (np.linalg.norm(centerToProjection) <= radius):
+            collisionList.append(temp)
+            projectionList.append(projectionOfCenter + position)
+        it += 1
+
+    it = 0
+    temp = listOfVectors[cp]
+    goingBackwards = velocity[0] < 0
+    while ( (cp + it) >= 0 and (True if goingForward else ( temp[0] - position[0]  < radius))):
+        temp = listOfVectors[cp + it]
+        newPosCenterSphere = temp - position
+        projectionOfCenter = proj_matrix @ newPosCenterSphere
+        centerToProjection = projectionOfCenter - newPosCenterSphere
+        if (np.linalg.norm(centerToProjection) <= radius):
+            collisionList.append(temp)
+            projectionList.append(projectionOfCenter + position)
+        it -= 1
     return collisionList,projectionList
 
 ##code to simulate the path of a particle through an aperiodic medium
