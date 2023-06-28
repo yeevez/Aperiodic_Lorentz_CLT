@@ -113,7 +113,7 @@ def posHitInArea(listOfVectors, position, velocity, radius,p):
     else:
         k = 1
 
-     goingForward =  velocity[0] > 0
+    goingForward =  velocity[0] > 0
 
     it = 0
     temp = listOfVectors[cp]
