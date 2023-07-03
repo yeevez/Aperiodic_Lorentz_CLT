@@ -1,5 +1,5 @@
-function paths=scatter(bounces,trials,step)
-  m=[1,1,1;1,2,2;1,2,3];
+function paths=scatter(bounces,trials,step,m,radius)
+  %m=[1,1,1;1,2,2;1,2,3];
   %non-pisot
   %m=[3,3,5;1,4,3;2,1,3];
   window=0.5;
@@ -19,8 +19,11 @@ function paths=scatter(bounces,trials,step)
   rinv=inv(r);
   %computes scatterer positions of a large grid
   [sp,~,~]=scatterer_positions(r,window,200,[0;0;0]);
-  %set radius to be ratio of minimum pairwise distance between scatterers
-  radius=ratio*min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
+  %check if radius will produce overlapping scatterers
+  if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
+      print("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
+      return
+  end
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(2,bounces/step+1,trials);
   parfor i=1:trials
