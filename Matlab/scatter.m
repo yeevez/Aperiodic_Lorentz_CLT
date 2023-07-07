@@ -21,7 +21,7 @@ function paths=scatter(bounces,trials,step,m,radius)
   [sp,~,~]=scatterer_positions(r,window,200,[0;0;0]);
   %check if radius will produce overlapping scatterers
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
-      print("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
+      disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
       return
   end
   fprintf('Using %f as the radius of the scatterers.\n',radius);
