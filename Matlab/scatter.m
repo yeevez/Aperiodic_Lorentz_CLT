@@ -20,6 +20,7 @@ function paths=scatter(bounces,trials,step,m,radius)
   %computes scatterer positions of a large grid
   [sp,~,~]=scatterer_positions(r,window,200,[0;0;0]);
   %check if radius will produce overlapping scatterers
+  %radius  =  ratio*min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
       disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
       return
