@@ -13,9 +13,10 @@ this template
 """
 
 import numpy as np
+from scipy.io import loadmat
+
 
 N_SAMPLES = 10000
-n_existing_samples = 102
 radius = 0.3
 max_bounces = 1000000
 R = 3
@@ -30,14 +31,14 @@ def sample_displacement(n_samples, norm="root t"):
     samples = np.zeros((n_samples,n_positions_recorded,2))
     n_samples_actual = 0
     for i in range(n_samples):
-        filename = 'C:/path/to/directory/2d_circular_obstacle_5milcollisions_matrixA_sample_' + str(i) + ".npy"
+        filename = 'C:/path/to/directory/sample_name' + str(i) + ".mat"
         try:
-            sample = np.load(filename)
-        except FileNotFoundError:
-            continue
-        else:
+            sample = loadmat(filename)
+            sample = sample['paths']
             samples[i] = sample
             n_samples_actual += 1
+        except FileNotFoundError:
+            continue
 
     samples = samples[:n_samples_actual]
     sample_displacement = samples.copy()
@@ -80,3 +81,22 @@ def growth_rate(mean_displacements):
     for i in range(1,growth_rate.shape[0]):
             growth_rate[i] = mean_displacements[i]/mean_displacements[i-1]
     return growth_rate
+
+
+
+index = 1000
+sample_unnormed = sample_displacement(N_SAMPLES,norm='none')
+sample_normed = sample_displacement(N_SAMPLES)
+sample_supernormed = sample_displacement(N_SAMPLES,norm='root tlogt')
+print("Unnormed Sample Statistics")
+mean, var = sample_displacement_mean_var(sample_unnormed,index)
+print("Mean",mean)
+print("Covariance", var)
+print("Diffusively normed Sample Statistics")
+mean, var = sample_displacement_mean_var(sample_normed,index)
+print("Mean",mean)
+print("Covariance", var)
+print("Superdiffusively normed Sample Statistics")
+mean, var = sample_displacement_mean_var(sample_supernormed,index)
+print("Mean",mean)
+print("Covariance", var)
