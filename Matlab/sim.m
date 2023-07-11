@@ -8,6 +8,7 @@ n_existing_matrix_samples = 0; %update this if we run again with more matrices, 
 for idx = 1:numel(matrix_list)
     matrix_number = idx + n_existing_matrix_samples;
     matrix = matrix_list{idx};
-    paths = scatter(bounces,trials,step,matrix,radius);
+    [paths,max_fpl] = scatter(bounces,trials,step,matrix,radius);
     save("scatter_samples_matrix" + matrix_number + ".mat" ,'paths');
+    save("scatter_samples_matrix" +matrix_number + "_mfpl.mat","max_fpl");
 end
