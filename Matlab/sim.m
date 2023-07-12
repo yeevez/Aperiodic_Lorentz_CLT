@@ -2,7 +2,7 @@ matrices = {[1,1,1;1,1,2;1,2,3],[1,1,2;1,2,3;2,3,6],[1,2,1;2,5,4;1,4,6],[1,2,2;2
 bounces = 1000000;
 trials = 2000;
 step = 1000;
-radius = 0.3;
+radius = 0.2655*0.99;
 n_existing_matrix_samples = 0; %update this if we run again with more matrices, purely for file naming purposes
 
 for idx = 1:numel(matrix_list)
