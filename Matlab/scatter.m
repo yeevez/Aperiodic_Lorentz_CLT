@@ -1,4 +1,4 @@
-function [paths,max_fpl] =scatter(bounces,trials,step,m,radius)
+function paths=scatter(bounces,trials,step,m,radius)
   %m=[1,1,1;1,2,2;1,2,3];
   %non-pisot
   %m=[3,3,5;1,4,3;2,1,3];
@@ -23,11 +23,14 @@ function [paths,max_fpl] =scatter(bounces,trials,step,m,radius)
   %radius  =  ratio*min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
       disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
-      return
+      NewRadius = min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
+      disp("New Min radius:")
+      disp(NewRadius)
+      paths = NewRadius;
+      return 
   end
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(2,bounces/step+1,trials);
-  max_fpl = zeros(trials);
   parfor i=1:trials
     c=[0;0;0];
     [sp,~,~]=scatterer_positions(r,window,grid,c);
@@ -52,12 +55,7 @@ function [paths,max_fpl] =scatter(bounces,trials,step,m,radius)
         %position of reflection
         b=rsp(1,h(s))-sqrt(radius^2-(rp(2)-rsp(2,h(s)))^2);
         %unrotated position of reflection
-        position_new =[cos(angle),-sin(angle);sin(angle),cos(angle)]*[b;rp(2)];
-        fpl = norm(position_new - position);
-        if fpl>max_fpl(i)
-            max_fpl(i) = fpl
-        end
-        position = position_new;
+        position=[cos(angle),-sin(angle);sin(angle),cos(angle)]*[b;rp(2)];
         %angle of reflection
         angle=mod(2*atan2(rsp(2,h(s))-rp(2),rsp(1,h(s))-b)+pi+angle,2*pi);
         path(:,bounce)=position;
