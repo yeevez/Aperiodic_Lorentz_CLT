@@ -9,4 +9,8 @@ while (simResult > 0)
      simResult = simulation(matrices, bounces, trials, step, simResult*0.99);
 end
 disp("Simulation ended. Final radius of simulation:")
-disp(simResult*0.99)
+if simResult< 0
+    disp(radius)
+else
+    disp(simResult*0.99)
+end
