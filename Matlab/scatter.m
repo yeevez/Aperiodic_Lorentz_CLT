@@ -1,7 +1,5 @@
-function paths=scatter(bounces,trials,step,m,radius)
-  %m=[1,1,1;1,2,2;1,2,3];
-  %non-pisot
-  %m=[3,3,5;1,4,3;2,1,3];
+function [paths,flights]=scatter(bounces,trials,step,m,radius)
+  flights = zeros(trials);
   window=0.5;
   %optimal grid size appears to be around 20x20x20
   grid=20;
@@ -32,6 +30,7 @@ function paths=scatter(bounces,trials,step,m,radius)
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(2,bounces/step+1,trials);
   parfor i=1:trials
+    max_flight = 0;
     c=[0;0;0];
     [sp,~,~]=scatterer_positions(r,window,grid,c);
     %initial position and angle on surface of scatterer at origin
@@ -55,7 +54,10 @@ function paths=scatter(bounces,trials,step,m,radius)
         %position of reflection
         b=rsp(1,h(s))-sqrt(radius^2-(rp(2)-rsp(2,h(s)))^2);
         %unrotated position of reflection
-        position=[cos(angle),-sin(angle);sin(angle),cos(angle)]*[b;rp(2)];
+        position_new =[cos(angle),-sin(angle);sin(angle),cos(angle)]*[b;rp(2)];
+        flight = norm(position_new-position);
+        max_flight = max([flight,max_flight])
+        position = position_new
         %angle of reflection
         angle=mod(2*atan2(rsp(2,h(s))-rp(2),rsp(1,h(s))-b)+pi+angle,2*pi);
         path(:,bounce)=position;
@@ -83,6 +85,7 @@ function paths=scatter(bounces,trials,step,m,radius)
     end
     e=toc;
     fprintf('Trial %i took %.2f seconds.\n',i,e);
+    flights(i) = max_flight
     paths(:,:,i)=path(:,1:step:end);
   end
 end
