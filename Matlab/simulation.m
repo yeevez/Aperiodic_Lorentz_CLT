@@ -4,12 +4,13 @@ function simulation = simulation(matrix_list,bounces, trials, step, radius, n_ex
     for idx = 1:numel(matrix_list)
         matrix_number = idx + n_existing_matrix_samples;
         matrix = matrix_list{idx};
-        paths = scatter(bounces,trials,step,matrix,radius);
+        [paths,max_fpl] = scatter(bounces,trials,step,matrix,radius);
         if (length(paths) == 1)
             simulation = paths*0.99;
             return
         end
         save("scatter_samples_matrix" + matrix_number + ".mat" ,'paths');
+        save("scatter_samples_matrix" +matrix_number + "_mfpl.mat","max_fpl");
     end
     simulation = -1;
 end
