@@ -3,8 +3,7 @@ function [paths,flights]=scatter(bounces,trials,step,m,radius)
   window=0.5;
   %optimal grid size appears to be around 20x20x20
   grid=20;
-  ratio=0.99;
-  [v,l]=eig(m);
+  [v,~]=eig(m);
   %normal vector to an eigenplane
   n=cross(v(:,2),v(:,3));
   %n=cross(v(:,1),v(:,3));
@@ -18,7 +17,6 @@ function [paths,flights]=scatter(bounces,trials,step,m,radius)
   %computes scatterer positions of a large grid
   [sp,~,~]=scatterer_positions(r,window,200,[0;0;0]);
   %check if radius will produce overlapping scatterers
-  %radius  =  ratio*min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
       disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
       NewRadius = min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2;
