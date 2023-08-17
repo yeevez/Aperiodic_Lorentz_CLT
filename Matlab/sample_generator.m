@@ -4,8 +4,9 @@ bounces = 10^6;
 trials = 2000;
 step = 1000;
 radius = 0.2320*0.99;
+outdim = 2;
 
-simResult = simulation(matrices, bounces, trials, step, radius);
+simResult = simulation(matrices, bounces, trials, step, radius,0,outdim);
 while (simResult > 0)
      simResult = simulation(matrices, bounces, trials, step, simResult*0.99);
 end
