@@ -1,4 +1,5 @@
 function [paths,flights]=scatter(bounces,trials,step,m,radius,outdim)
+  indim = size(m,1);
   flights = zeros(trials);
   origin = zeros(size(m(1,:)))';
   window=0.5;
@@ -79,12 +80,12 @@ function [paths,flights]=scatter(bounces,trials,step,m,radius,outdim)
   else 
       parfor i=1:trials
         max_flight = 0;
-        c=[0;0;0];
+        c=[0;0;0;0;0];
         [sp,~,~]=scatterer_positions(r,window,grid,c,outdim);
         %initial position and angle on surface of scatterer at origin
         theta =mod(2*pi*rand(),2*pi);
         phi = mod(pi*rand(),pi);
-        position=radius*[sin(phi)*cos(theta);sin(phi)*sin(theta),cos(phi)];
+        position=radius*[sin(phi)*cos(theta);sin(phi)*sin(theta);cos(phi)];
         path=zeros(2,bounces+1);
         bounce=1;
         path(:,bounce)=position;
@@ -96,7 +97,7 @@ function [paths,flights]=scatter(bounces,trials,step,m,radius,outdim)
           rp = rot*position;
           %%rp=[cos(-angle),-sin(-angle);sin(-angle),cos(-angle)]*position;
           %rotates scatterers
-          rsp = rot*sp
+          rsp = rot*sp;
           %%rsp=[cos(-angle),-sin(-angle);sin(-angle),cos(-angle)]*sp;
           %finds scatterers with center within radius of y-coordinate of rotated position, towards the right
           h=find(norm([rsp(2,:);rsp(3,:)],2)<=radius&rsp(1,:)>rp(1));
@@ -122,23 +123,31 @@ function [paths,flights]=scatter(bounces,trials,step,m,radius,outdim)
             %fprintf('Bounced at (%.2f,%.2f).\n',position(1),position(2));
           else
             %passes through without reflection, computes convex hull of center of scatterers
-            psc = convhull(rsp(1,:),rsp(2,:),rsp(3,:));
-            ps = []
-            for j = 1:size(psc,1)
-                ps = [ps;rsp(:,psc)]
-            end
-            
-
             h=rsp(:,convhull(rsp(1,:),rsp(2,:),rsp(3,:)));
-            
+            n = size(h,2)/3;
+            h = reshape(h,[size(h,1),n,3]);
             %computes intersection of scattering direction with convex hull, taking right-most intersection to be exit point
-            m=h(:,2:end)-h(:,1:(end-1)); %todo: generalize % h = convex hull of scatterers -> m is columns 2:-1 of h - columns 1:-2 ????? what mean?
-            m=m(2,:)./m(1,:); %todo: generalize %m is now the second row of m divided by first row -> y/x? slope?
-            x=(rp(2)-h(2,1:(end-1))+m.*h(1,1:(end-1)))./m; %todo: generalize %pos_y -
-            sh=sort([h(1,1:(end-1));h(1,2:end)],1); %todo: generalize
-            xi=find(x>sh(1,:)&x<sh(2,:)); %todo: generalize
+            intersections = [];
+            for j=1:n
+                points=h(:,j,:);
+                normal = cross(points(:,:,2)-points(:,:,1),points(:,:,3)-points(:,:,1));
+                %normal = normal/norm(normal);
+                d = dot(normal,points(:,:,1));
+                x = (d-(normal(2)*rp(2))-(normal(3)*rp(3)))/normal(1);
+                p = [x;rp(2);rp(3)];
+                region = [p,points(:,:,1),points(:,:,2),points(:,:,3)];
+                if all(convhull(region(1,:),region(2,:),region(3,:))~=1)
+                    intersections = [intersections p]
+                end
+            end
+            sorted_intersections=sort(intersections,1,"descend");
+            intersection = sorted_intersections(1);
             %undo both rotations to be back in R^n
-            c=round(r\[[cos(angle),-sin(angle);sin(angle),cos(angle)]*[max(x(xi))-radius;rp(2)];0]); %todo: generalize
+            if indim == 4
+                c=round(r\[rot\intersection;0]);
+            elseif indim == 5
+                c=round(r\[rot\intersection;0;0]);
+            end
             %computes new grid centered at exit point
             [sp,~,~]=scatterer_positions(r,window,grid,c,outdim);
           end
