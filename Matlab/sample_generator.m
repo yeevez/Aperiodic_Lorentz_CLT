@@ -5,7 +5,8 @@ bounces = 10^6;
 trials = 2000;
 step = 1000;
 %radius = 0.2320*0.99;
-radius = .1050;
+%radius = .1050;
+radius = 0.0850;
 outdim = 3;
 
 simResult = simulation(matrices, bounces, trials, step, radius,0,outdim);

@@ -8,7 +8,6 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
   [v,~]=eig(matrix);
   %rotation matrix taking normal vector to z-axis
   r=rotation_matrix(v,outdim);
-  %rinv=inv(r);
   %computes scatterer positions of a large grid
   [sp,~,~]=scatterer_positions(r,window,3,origin,outdim,false,radius);
   %check if radius will produce overlapping scatterers
@@ -81,49 +80,48 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
       for i=1:trials
         max_flight = 0;
         c=origin;
+        last_scatterer = [0;0;0];
         [sp,~,~]=scatterer_positions(r,window,pgrid,c,outdim,false,radius);
         %initial position and angle on surface of scatterer at origin
         theta = mod(2*pi*rand(),2*pi);
         phi = mod(pi*rand(),pi);
         position=radius*[sin(phi)*cos(theta);sin(phi)*sin(theta);cos(phi)];
+        trajectory = position/norm(position);
         path=zeros(3,bounces+1);
         bounce=1;
         path(:,bounce)=position;
         tic;
         while bounce<=bounces
           %rotates so scattering direction is in +x-axis, possibly not at origin
-          trajectory = [sin(phi)*cos(theta);sin(phi)*sin(theta);cos(phi)];
+          %trajectory = [sin(phi)*cos(theta);sin(phi)*sin(theta);cos(phi)]
           rot = rotation_matrix_alt(trajectory);
           rp = rot*position;
-          %rotates scatterers
+          %rotates scatterers, not considering the scatterer at the most recent collision
           rsp = rot*sp;
-          %finds scatterers with center within radius of y-coordinate of rotated position, towards the right
-          %h=find(rsp(2,:)>=(rp(2)-radius)&rsp(2,:)<=(rp(2)+radius)&rsp(1,:)>rp(1));
-          h=find(rsp(2,:)>=(rp(2)-radius)&rsp(2,:)<=(rp(2)+radius)&rsp(3,:)>=(rp(3)-radius)&rsp(3,:)<=(rp(3)+radius)&rsp(1,:)>rp(1));
+          %finds scatterers with center within radius of y-coordinate of
+          %rotated position, towards the right, excluding the most recent
+          %scatterer
+          h=find(sqrt((rsp(2,:)-rp(2)).^2+(rsp(3,:)-rp(3,:)).^2)<=radius&rsp(1,:)>rp(1));
           if ~isempty(h)
             bounce=bounce+1;
             %reflect off of closest scatterer
-            %[~,s]=min(rsp(1,h));
-            [~,sh] = sort(rsp(1,h));
-            if bounce <= 2 
-                s = sh(1);
-            else
-                s = sh(2);
-            end
+            [~,s]=min(rsp(1,h));
             %position of reflection
             b=rsp(1,h(s))-sqrt(radius^2-(rp(2)-rsp(2,h(s)))^2-(rp(3)-rsp(3,h(s)))^2);
             %unrotated position of reflection
             position_new = [b;rp(2);rp(3)];
             position_new = rot\position_new;
-            %%position_new =[cos(angle),-sin(angle);sin(angle),cos(angle)]*[b;rp(2)];
             flight = norm(position_new-position);
             max_flight = max([flight,max_flight]);
             position = position_new;
-            position
             %angle of reflection
-            theta=mod(2*atan2(rsp(2,h(s))-rp(2),rsp(1,h(s))-b)+pi+theta,2*pi);
-            phi=mod(2*atan2(rsp(2,h(s))-rp(2),rsp(1,h(s))-b)+pi+phi,pi);
-            %%angle=mod(2*atan2(rsp(2,h(s))-rp(2),rsp(1,h(s))-b)+pi+angle,2*pi);
+            last_scatterer = rot\rsp(:,h(s));
+            lsp = last_scatterer-position;
+            lsp = lsp/norm(lsp);
+            trajectory = trajectory - 2*dot(lsp,trajectory)*lsp;
+            %trajectory
+            %theta = atan2(position(2)-last_scatterer(2),position(1)-last_scatterer(1))+pi;
+            %phi= acos((position(3)-last_scatterer(3))/radius);
             path(:,bounce)=position;
             %fprintf('Bounced at (%.2f,%.2f).\n',position(1),position(2));
           else
