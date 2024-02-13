@@ -13,7 +13,6 @@ function validation_vec = validate(positions,scatterers,radius)
         norm(position-scatterer,2)
         if abs(norm(position-scatterer,2) - radius) > 10e-5
             validation_vec(1,i) = 1;
-        else
             sprintf("bounce %d is too far away from its scatterer",i)
         end
     end
