@@ -1,4 +1,4 @@
-function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
+function [paths,flights,scatterers]=scatter(bounces,trials,step,matrix,radius,outdim)
   indim = size(matrix,1);
   flights = zeros(trials);
   origin = zeros(size(matrix(1,:)))';
@@ -9,7 +9,7 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
   %rotation matrix taking normal vector to z-axis
   r=rotation_matrix(v,outdim);
   %computes scatterer positions of a large grid
-  [sp,~,~]=scatterer_positions(r,window,3,origin,outdim,false,radius);
+  [sp,~,~]=scatterer_positions(r,window,3,origin,outdim,true,radius);
   %check if radius will produce overlapping scatterers
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
       disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
@@ -21,6 +21,7 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
   end
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(outdim,bounces/step+1,trials);
+  scatterers=zeros(outdim,bounces/step+1,trials);
   if outdim == 2
       parfor i=1:trials
         max_flight = 0;
@@ -88,8 +89,10 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
         position=radius*[sin(phi)*cos(theta);sin(phi)*sin(theta);cos(phi)];
         trajectory = position/norm(position);
         path=zeros(3,bounces+1);
+        scatterer_path = zeros(3,bounces+1);
         bounce=1;
         path(:,bounce)=position;
+        scatterer_path(:,bounce)=last_scatterer;
         tic;
         while bounce<=bounces
           %rotates so scattering direction is in +x-axis, possibly not at origin
@@ -123,6 +126,7 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
             %theta = atan2(position(2)-last_scatterer(2),position(1)-last_scatterer(1))+pi;
             %phi= acos((position(3)-last_scatterer(3))/radius);
             path(:,bounce)=position;
+            scatterer_path(:,bounce) = last_scatterer;
             %fprintf('Bounced at (%.2f,%.2f).\n',position(1),position(2));
           else
             %passes through without reflection, computes convex hull of center of scatterers
@@ -164,6 +168,7 @@ function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
         fprintf('Trial %i took %.2f seconds.\n',i,e);
         flights(i) = max_flight;
         paths(:,:,i)=path(:,1:step:end);
+        scatterers(:,:,i)=scatterer_path(:,1:step:end);
       end
   end
 end
