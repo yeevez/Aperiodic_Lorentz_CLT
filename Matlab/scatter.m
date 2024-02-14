@@ -1,4 +1,5 @@
-function [paths,flights,scatterers]=scatter(bounces,trials,step,matrix,radius,outdim)
+function [paths,flights,scatterers,generator_points]=scatter(bounces,trials,step,matrix,radius,outdim)
+  generator_points = [];
   indim = size(matrix,1);
   flights = zeros(trials);
   origin = zeros(size(matrix(1,:)))';
@@ -9,7 +10,7 @@ function [paths,flights,scatterers]=scatter(bounces,trials,step,matrix,radius,ou
   %rotation matrix taking normal vector to z-axis
   r=rotation_matrix(v,outdim);
   %computes scatterer positions of a large grid
-  [sp,~,~]=scatterer_positions(r,window,3,origin,outdim,true,radius);
+  [sp,~,~]=scatterer_positions(r,window,3,origin,outdim,false,radius);
   %check if radius will produce overlapping scatterers
   if radius > min(arrayfun(@(i)min(sqrt(sum((sp(:,i)-sp(:,(i+1):end)).^2))),1:(size(sp,2)-1)))/2
       disp("this radius and scatterer configuration induces overlapping scatterers, try again with a smaller radius")
@@ -83,6 +84,7 @@ function [paths,flights,scatterers]=scatter(bounces,trials,step,matrix,radius,ou
         c=origin;
         last_scatterer = [0;0;0];
         [sp,~,~]=scatterer_positions(r,window,pgrid,c,outdim,false,radius);
+        generator_points = [generator_points c];
         %initial position and angle on surface of scatterer at origin
         theta = mod(2*pi*rand(),2*pi);
         phi = mod(pi*rand(),pi);
@@ -162,6 +164,7 @@ function [paths,flights,scatterers]=scatter(bounces,trials,step,matrix,radius,ou
             end
             %computes new grid centered at exit point
             [sp,~,~]=scatterer_positions(r,window,pgrid,c,outdim,false,radius);
+            generator_points = [generator_points c];
           end
         end
         e=toc;

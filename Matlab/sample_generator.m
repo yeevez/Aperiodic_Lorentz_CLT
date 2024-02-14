@@ -23,4 +23,4 @@ end
 
 load('scatter_samples_matrix1.mat', 'paths')
 hold on
-plot3(paths(1,:),paths(2,:),paths(3,:))
+%plot3(paths(1,:),paths(2,:),paths(3,:))
