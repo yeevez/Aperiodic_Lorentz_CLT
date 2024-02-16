@@ -1,5 +1,5 @@
-function [paths,flights,scatterers,generator_points]=scatter(bounces,trials,step,matrix,radius,outdim)
-  generator_points = [];
+function [paths,flights]=scatter(bounces,trials,step,matrix,radius,outdim)
+  %generator_points = [];
   indim = size(matrix,1);
   flights = zeros(trials);
   origin = zeros(size(matrix(1,:)))';
@@ -22,7 +22,7 @@ function [paths,flights,scatterers,generator_points]=scatter(bounces,trials,step
   end
   fprintf('Using %f as the radius of the scatterers.\n',radius);
   paths=zeros(outdim,bounces/step+1,trials);
-  scatterers=zeros(outdim,bounces/step+1,trials);
+  %scatterers=zeros(outdim,bounces/step+1,trials);
   if outdim == 2
       parfor i=1:trials
         max_flight = 0;
@@ -79,12 +79,12 @@ function [paths,flights,scatterers,generator_points]=scatter(bounces,trials,step
         paths(:,:,i)=path(:,1:step:end);
       end
   else 
-      for i=1:trials
+      parfor i=1:trials
         max_flight = 0;
         c=origin;
         last_scatterer = [0;0;0];
         [sp,~,~]=scatterer_positions(r,window,pgrid,c,outdim,false,radius);
-        generator_points = [generator_points c];
+        %generator_points = [generator_points c];
         %initial position and angle on surface of scatterer at origin
         theta = mod(2*pi*rand(),2*pi);
         phi = mod(pi*rand(),pi);
@@ -164,14 +164,14 @@ function [paths,flights,scatterers,generator_points]=scatter(bounces,trials,step
             end
             %computes new grid centered at exit point
             [sp,~,~]=scatterer_positions(r,window,pgrid,c,outdim,false,radius);
-            generator_points = [generator_points c];
+            %generator_points = [generator_points c];
           end
         end
         e=toc;
         fprintf('Trial %i took %.2f seconds.\n',i,e);
         flights(i) = max_flight;
         paths(:,:,i)=path(:,1:step:end);
-        scatterers(:,:,i)=scatterer_path(:,1:step:end);
+        %scatterers(:,:,i)=scatterer_path(:,1:step:end);
       end
   end
 end

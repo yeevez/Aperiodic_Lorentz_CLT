@@ -17,7 +17,7 @@ function [sp,g,w]=scatterer_positions(rotation,window,pgrid,center,outdim,plot,r
   if plot
     figure;
     hold on;
-    numPoints = 100;
+    numPoints = 10;
     % Loop through each center point
     for i = 1:size(sp, 2)
         center = sp(:,i);
