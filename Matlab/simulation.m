@@ -8,10 +8,10 @@ function simulation = simulation(matrix_list,bounces, trials, step, radius, n_ex
             simulation = paths*0.99;
             return
         end
-        save("scatter_samples_matrix" + matrix_number + ".mat" ,'paths');
-        save("scatter_samples_matrix" +matrix_number + "_mfpl.mat","max_fpl");
-        save("scatterer_positions_matrix" + matrix_number + ".mat" ,'scatterers');
-        save("scatterer_generators" + matrix_number + ".mat" ,'generators');
+        save("scatter_samples_3d_matrix" + matrix_number + ".mat" ,'paths');
+        save("scatter_samples_3d_matrix" +matrix_number + "_mfpl.mat","max_fpl");
+        %save("scatterer_positions_matrix" + matrix_number + ".mat" ,'scatterers');
+        %save("scatterer_generators" + matrix_number + ".mat" ,'generators');
     end
     simulation = -1;
 end
