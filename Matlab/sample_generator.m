@@ -16,7 +16,7 @@ outdim = 3;
 
 simResult = simulation(matrices, bounces, trials, step, radius,0,outdim);
 while (simResult > 0)
-     simResult = simulation(matrices, bounces, trials, step, simResult*0.99);
+     simResult = simulation(matrices, bounces, trials, step, simResult*0.99, 0, outdim);
 end
 disp("Simulation ended. Final radius of simulation:")
 disp(simResult)
